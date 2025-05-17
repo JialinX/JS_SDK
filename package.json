@@ -1,6 +1,6 @@
 {
   "name": "@web3-smart-wallet/flutter-web3-provider",
-  "version": "1.0.1",
+  "version": "1.0.3",
   "description": "A Web3 provider implementation for Flutter WebView with EIP-6963 support",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
