@@ -31,7 +31,16 @@ jobs:
       - name: Build
         run: npm run build
 
+      - name: Get version
+        id: get_version
+        run: echo "VERSION=$(node -p "require('./package.json').version")" >> $GITHUB_ENV
+
       - name: Publish to GitHub Packages
-        run: npm publish
+        run: |
+          if [ "${{ github.event_name }}" = "push" ] && [ "${{ github.ref_type }}" = "tag" ]; then
+            npm publish
+          else
+            echo "Skipping publish for non-tag push"
+          fi
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }} 
