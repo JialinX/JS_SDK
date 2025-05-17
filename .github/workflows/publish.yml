@@ -2,21 +2,21 @@ name: Publish to GitHub Packages
 
 on:
   push:
-    branches:
-      - main  # 或者你的主分支名称，比如 master
     tags:
-      - 'v*' # 当推送以v开头的标签时触发
+      - 'v*'  # 只在推送标签时触发
 
 jobs:
   build-and-publish:
     runs-on: ubuntu-latest
     permissions:
-      contents: read
+      contents: write
       packages: write
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
 
       - name: Setup Node.js
         uses: actions/setup-node@v3
@@ -31,13 +31,11 @@ jobs:
       - name: Build
         run: npm run build
 
-      - name: Get version
-        id: get_version
-        run: echo "VERSION=$(node -p "require('./package.json').version")" >> $GITHUB_ENV
-
       - name: Publish to GitHub Packages
         run: |
           if [ "${{ github.event_name }}" = "push" ] && [ "${{ github.ref_type }}" = "tag" ]; then
+            echo "//npm.pkg.github.com/:_authToken=${{ secrets.GITHUB_TOKEN }}" > .npmrc
+            echo "@${{ github.repository_owner }}:registry=https://npm.pkg.github.com/" >> .npmrc
             npm publish
           else
             echo "Skipping publish for non-tag push"
