@@ -1,7 +1,6 @@
 # 编译输出目录
 /dist
 /build
-/lib
 /examples
 
 # 依赖目录
@@ -46,5 +45,40 @@ Desktop.ini
 # 打包文件
 *.tgz
 *.zip
-*.tar.gz 
+*.tar.gz
+
+# Dart/Pub
+.dart_tool/
+.packages
+.pub-cache/
+build/
+# Flutter
+.flutter-plugins
+.flutter-plugins-dependencies
+.flutter-versions
+.flutter-*
+# IDEs
+.idea/
+.vscode/
+*.iml
+# macOS
+macos/*
+# Android/iOS（如有原生端）
+android/.gradle/
+android/build/
+ios/Pods/
+ios/Flutter/Flutter.framework/
+
+# 日志
+*.log
+
+# Flutter自动生成文件
+.metadata
+
+test/widget_test.dart
+
+web/favicon.png
+web/icons/
+web/index.html
+web/manifest.json
 
