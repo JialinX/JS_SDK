@@ -117,3 +117,12 @@ window.dispatchEvent(new CustomEvent('eip6963:requestProvider'));
    - 不能直接用浏览器打开 `web/index.html`，必须通过本地服务器访问 `build/web/index.html`。
 
 ---
+- eth_getBlockByNumber 
+
+## 如何运行单元测试
+
+在项目根目录下执行以下命令：
+
+```bash
+npm test
+```

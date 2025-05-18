@@ -12,30 +12,35 @@ export const walletInfo = {
 export function initializeEIP6963() {
     // 监听钱包发现请求
     setupRequestListener();
-
     // 主动公告钱包
     announceProvider();
 }
 
 // 监听钱包请求事件
 function setupRequestListener() {
-    window.addEventListener("eip6963:requestProvider", () => {
-        // 向请求方公告我们的provider
-        announceProvider();
-    });
+    if (typeof globalThis.window !== 'undefined' && globalThis.window.addEventListener) {
+        globalThis.window.addEventListener("eip6963:requestProvider", () => {
+            // 向请求方公告我们的provider
+            announceProvider();
+        });
+    }
 }
 
 // 公告钱包Provider
 export function announceProvider() {
-    window.dispatchEvent(
-        new CustomEvent("eip6963:announceProvider", {
-            detail: {
-                info: walletInfo,
-                provider: ourEIP1193Provider
-            }
-        })
-    );
+    if (typeof globalThis.window !== 'undefined' && globalThis.window.dispatchEvent) {
+        globalThis.window.dispatchEvent(
+            new globalThis.window.CustomEvent("eip6963:announceProvider", {
+                detail: {
+                    info: walletInfo,
+                    provider: ourEIP1193Provider
+                }
+            })
+        );
+    }
 }
 
 // 页面加载时自动公告（延迟执行，避免与页面初始化冲突）
-setTimeout(announceProvider, 0); 
+export function autoAnnounce() {
+    setTimeout(announceProvider, 0);
+} 
