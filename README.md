@@ -78,3 +78,11 @@ window.dispatchEvent(new CustomEvent('eip6963:requestProvider'));
 - eth_gasPrice
 - eth_blockNumber
 - eth_getBlockByNumber 
+
+## 如何运行单元测试
+
+在项目根目录下执行以下命令：
+
+```bash
+npm test
+```
