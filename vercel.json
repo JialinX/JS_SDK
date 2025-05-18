@@ -1,0 +1,24 @@
+{
+    "version": 2,
+    "git": {
+        "deploymentEnabled": {
+            "flutter_page": true
+        }
+    },
+    "builds": [
+        {
+            "src": "vercel-build.sh",
+            "use": "@vercel/static-build",
+            "config": {
+                "distDir": "build/web",
+                "buildCommand": "chmod +x vercel-build.sh && ./vercel-build.sh"
+            }
+        }
+    ],
+    "routes": [
+        {
+            "src": "/(.*)",
+            "dest": "/build/web/$1"
+        }
+    ]
+}

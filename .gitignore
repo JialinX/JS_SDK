@@ -82,3 +82,6 @@ web/icons/
 web/index.html
 web/manifest.json
 
+# Vercel
+.vercel
+
