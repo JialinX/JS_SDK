@@ -1,6 +1,7 @@
 import 'dart:js_util' as js_util;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'dart:developer' as developer;
 
 class WalletPage extends StatefulWidget {
   @override
@@ -60,6 +61,12 @@ class _WalletPageState extends State<WalletPage> {
     }
   }
 
+  void _onButtonPressed(String name) {
+    developer.log('按钮点击: $name');
+    // ignore: avoid_print
+    print('按钮点击: $name');
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -68,8 +75,40 @@ class _WalletPageState extends State<WalletPage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            if (walletAddress != null)
+            if (walletAddress != null) ...[
               Text('已连接钱包: $walletAddress', style: TextStyle(fontSize: 18)),
+              const SizedBox(height: 24),
+              Wrap(
+                spacing: 16,
+                runSpacing: 16,
+                children: [
+                  ElevatedButton(
+                    onPressed: () => _onButtonPressed('send message'),
+                    child: Text('send message'),
+                  ),
+                  ElevatedButton(
+                    onPressed: () => _onButtonPressed('sign message'),
+                    child: Text('sign message'),
+                  ),
+                  ElevatedButton(
+                    onPressed: () => _onButtonPressed('get balance'),
+                    child: Text('get balance'),
+                  ),
+                  ElevatedButton(
+                    onPressed: () => _onButtonPressed('send transaction'),
+                    child: Text('send transaction'),
+                  ),
+                  ElevatedButton(
+                    onPressed: () => _onButtonPressed('getter'),
+                    child: Text('getter'),
+                  ),
+                  ElevatedButton(
+                    onPressed: () => _onButtonPressed('setter'),
+                    child: Text('setter'),
+                  ),
+                ],
+              ),
+            ],
             if (error != null)
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: 8.0),
