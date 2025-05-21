@@ -19,6 +19,7 @@ export function emitEvent(eventName: string, ...args: any[]) {
 // 实现一个基本的EIP-1193 Provider，直接委托给walletEngine
 export const ourEIP1193Provider = {
     request: async ({ method, params }: { method: string; params?: any[] }) => {
+        // 通过函数传递参数，避免模块顶层副作用
         return jsWalletEngine.request(method, params || []);
     },
     on: jsWalletEngine.on,
