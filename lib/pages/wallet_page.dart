@@ -13,6 +13,32 @@ class _WalletPageState extends State<WalletPage> {
   String? error;
 
   Future<void> connectWallet() async {
+    // 显示确认弹窗
+    bool? confirm = await showDialog<bool>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('确认连接'),
+          content: Text('是否确认连接钱包？'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(false),
+              child: Text('取消'),
+            ),
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(true),
+              child: Text('确认'),
+            ),
+          ],
+        );
+      },
+    );
+
+    // 如果用户点击取消，直接返回
+    if (confirm != true) {
+      return;
+    }
+
     try {
       if (!kIsWeb) {
         setState(() {
@@ -61,10 +87,144 @@ class _WalletPageState extends State<WalletPage> {
     }
   }
 
-  void _onButtonPressed(String name) {
-    developer.log('按钮点击: $name');
-    // ignore: avoid_print
-    print('按钮点击: $name');
+  void _onButtonPressed(String name) async {
+    // 显示确认弹窗
+    bool? confirm = await showDialog<bool>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('确认操作'),
+          content: Text('是否确认执行 $name 操作？'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(false),
+              child: Text('取消'),
+            ),
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(true),
+              child: Text('确认'),
+            ),
+          ],
+        );
+      },
+    );
+
+    // 如果用户点击取消，直接返回
+    if (confirm != true) {
+      return;
+    }
+
+    try {
+      final ethereum = js_util.getProperty(js_util.globalThis, 'ethereum');
+      if (ethereum == null) {
+        setState(() {
+          error = '未检测到钱包插件';
+        });
+        return;
+      }
+
+      switch (name) {
+        case 'send message':
+          // 发送消息
+          await js_util.promiseToFuture(
+            js_util.callMethod(ethereum, 'request', [
+              js_util.jsify({
+                'method': 'eth_sendTransaction',
+                'params': [{
+                  'from': walletAddress,
+                  'to': '0x0000000000000000000000000000000000000000',
+                  'data': '0x',
+                }]
+              })
+            ]),
+          );
+          break;
+
+        case 'sign message':
+          // 签名消息
+          final message = 'Hello Web3!';
+          final result = await js_util.promiseToFuture(
+            js_util.callMethod(ethereum, 'request', [
+              js_util.jsify({
+                'method': 'personal_sign',
+                'params': [message, walletAddress]
+              })
+            ]),
+          );
+          print('签名结果: $result');
+          break;
+
+        case 'get balance':
+          // 获取余额
+          final balance = await js_util.promiseToFuture(
+            js_util.callMethod(ethereum, 'request', [
+              js_util.jsify({
+                'method': 'eth_getBalance',
+                'params': [walletAddress, 'latest']
+              })
+            ]),
+          );
+          print('余额: $balance');
+          break;
+
+        case 'send transaction':
+          // 发送交易
+          await js_util.promiseToFuture(
+            js_util.callMethod(ethereum, 'request', [
+              js_util.jsify({
+                'method': 'eth_sendTransaction',
+                'params': [{
+                  'from': walletAddress,
+                  'to': '0x0000000000000000000000000000000000000000',
+                  'value': '0x0',
+                }]
+              })
+            ]),
+          );
+          break;
+
+        case 'getter':
+          // 调用合约的getter方法
+          await js_util.promiseToFuture(
+            js_util.callMethod(ethereum, 'request', [
+              js_util.jsify({
+                'method': 'eth_call',
+                'params': [{
+                  'to': '0x0000000000000000000000000000000000000000',
+                  'data': '0x',
+                }, 'latest']
+              })
+            ]),
+          );
+          break;
+
+        case 'setter':
+          // 调用合约的setter方法
+          await js_util.promiseToFuture(
+            js_util.callMethod(ethereum, 'request', [
+              js_util.jsify({
+                'method': 'eth_sendTransaction',
+                'params': [{
+                  'from': walletAddress,
+                  'to': '0x0000000000000000000000000000000000000000',
+                  'data': '0x',
+                }]
+              })
+            ]),
+          );
+          break;
+      }
+
+      // 显示成功提示
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('$name 操作执行成功')),
+      );
+
+    } catch (e) {
+      setState(() {
+        error = '操作失败: $e';
+      });
+    }
   }
 
   @override
