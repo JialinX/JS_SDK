@@ -77,6 +77,46 @@ window.dispatchEvent(new CustomEvent('eip6963:requestProvider'));
 - eth_estimateGas
 - eth_gasPrice
 - eth_blockNumber
+- eth_getBlockByNumber
+
+# Web3 Wallet Demo
+
+本项目为基于 Flutter 的 Web3 钱包连接演示页面，支持通过浏览器钱包插件（如 MetaMask、OKX、Bitget 等）连接。
+
+## 快速开始
+
+1. **安装依赖**
+
+   在项目根目录下运行：
+   ```bash
+   flutter pub get
+   ```
+
+2. **构建 Web 资源**
+
+   在项目根目录下运行：
+   ```bash
+   flutter build web
+   ```
+
+3. **启动本地服务器并访问**
+
+   进入构建输出目录并启动本地服务器：
+   ```bash
+   cd build/web
+   python3 -m http.server 8000
+   ```
+
+   然后在浏览器访问：
+   ```
+   http://localhost:8000/
+   ```
+
+4. **注意事项**
+   - 请使用已安装钱包插件（如 MetaMask、OKX、Bitget 等）的 Chrome 浏览器访问。
+   - 不能直接用浏览器打开 `web/index.html`，必须通过本地服务器访问 `build/web/index.html`。
+
+---
 - eth_getBlockByNumber 
 
 ## 如何运行单元测试

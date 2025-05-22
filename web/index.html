@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <base href="/">
+    <meta charset="UTF-8">
+    <meta content="IE=Edge" http-equiv="X-UA-Compatible">
+    <meta name="description" content="A new Flutter project.">
+
+    <!-- iOS meta tags & icons -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="apple-mobile-web-app-title" content="web3_wallet_demo">
+    <link rel="apple-touch-icon" href="icons/Icon-192.png">
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="favicon.png" />
+
+    <title>web3_wallet_demo</title>
+    <link rel="manifest" href="manifest.json">
+
+    <!-- 引入 SDK -->
+    <script src="dist/index.js"></script>
+
+    <script>
+        // 存储发现的钱包
+        let discoveredWallets = new Map();
+
+        // 初始化钱包发现
+        function initializeWalletDiscovery() {
+            // 使用 SDK 初始化 EIP-6963
+            initializeEIP6963();
+
+            // 监听钱包发现事件
+            window.addEventListener('eip6963:announceProvider', (event) => {
+                const { info, provider } = event.detail;
+                console.log('发现新钱包:', info.name);
+                discoveredWallets.set(info.uuid, { info, provider });
+                updateWalletList();
+            });
+        }
+
+        // 更新钱包列表
+        function updateWalletList() {
+            const walletList = document.getElementById('walletList');
+            walletList.innerHTML = '';
+
+            discoveredWallets.forEach((wallet, uuid) => {
+                const button = document.createElement('button');
+                button.className = 'wallet-button';
+                button.innerHTML = `
+                    <img src="${wallet.info.icon}" alt="${wallet.info.name}" class="wallet-icon">
+                    ${wallet.info.name}
+                `;
+                button.onclick = () => connectWallet(uuid);
+                walletList.appendChild(button);
+            });
+        }
+
+        // 连接钱包
+        async function connectWallet(uuid) {
+            try {
+                const wallet = discoveredWallets.get(uuid);
+                if (!wallet) {
+                    throw new Error('钱包未找到');
+                }
+
+                // 使用 SDK 的 provider 请求连接
+                const accounts = await ourEIP1193Provider.request({
+                    method: 'eth_requestAccounts'
+                });
+
+                // 显示钱包地址
+                const address = accounts[0];
+                document.getElementById('walletAddress').textContent =
+                    '已连接钱包: ' + address.substring(0, 6) + '...' + address.substring(38);
+
+                // 获取链 ID
+                const chainId = await ourEIP1193Provider.request({
+                    method: 'eth_chainId'
+                });
+                document.getElementById('chainId').textContent =
+                    '当前链 ID: ' + chainId;
+
+                // 使用 SDK 的事件系统监听账户变化
+                ourEIP1193Provider.on('accountsChanged', function (accounts) {
+                    if (accounts.length === 0) {
+                        document.getElementById('walletAddress').textContent = '未连接钱包';
+                    } else {
+                        const address = accounts[0];
+                        document.getElementById('walletAddress').textContent =
+                            '已连接钱包: ' + address.substring(0, 6) + '...' + address.substring(38);
+                    }
+                });
+
+                // 使用 SDK 的事件系统监听链 ID 变化
+                ourEIP1193Provider.on('chainChanged', function (chainId) {
+                    document.getElementById('chainId').textContent =
+                        '当前链 ID: ' + chainId;
+                });
+
+            } catch (error) {
+                console.error('连接钱包失败:', error);
+                document.getElementById('walletAddress').textContent =
+                    '连接钱包失败: ' + error.message;
+            }
+        }
+
+        // 页面加载完成后初始化钱包发现
+        window.addEventListener('load', initializeWalletDiscovery);
+    </script>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            background-color: #f5f5f5;
+        }
+
+        .container {
+            text-align: center;
+            padding: 20px;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            max-width: 600px;
+            width: 90%;
+        }
+
+        .wallet-button {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px 0;
+            width: 100%;
+            transition: background-color 0.3s;
+        }
+
+        .wallet-button:hover {
+            background-color: #45a049;
+        }
+
+        .wallet-icon {
+            width: 24px;
+            height: 24px;
+            margin-right: 10px;
+        }
+
+        #walletList {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin: 20px 0;
+        }
+
+        #walletAddress,
+        #chainId {
+            margin: 10px 0;
+            padding: 10px;
+            background-color: #f8f9fa;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Web3 钱包连接演示</h1>
+        <div id="walletList">
+            <!-- 钱包列表将在这里动态生成 -->
+        </div>
+        <div id="walletAddress">未连接钱包</div>
+        <div id="chainId">未获取链 ID</div>
+    </div>
+
+    <script src="flutter_bootstrap.js" async></script>
+</body>
+
+</html>
